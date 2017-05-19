@@ -205,6 +205,25 @@ public class App {
 
     }
 
+    public static List<Atom> positiveEvaluation(Map<Tgd,Integer> slices, int programNumber)
+    {
+        List<Atom> result = new ArrayList<Atom>();
+
+        for(Tgd t : slices.keySet())
+        {
+            if(slices.get(t) == programNumber) // If the tgd belongs to the stratum set
+            {
+                if(t.getLeft().size() == 0) // If the tgd doesn't have a left part
+                {
+                    result.add(t.getRight());
+                }
+            }
+        }
+        
+
+        return result;
+    }
+
     public static void main(String[] args) throws ParseException {
         System.out.println("Please enter the path of the input text file:");
         // ./src/test/resources/sample-mapping.txt  link(PartDieu,Debourg) reachable(PartDieu,Perrache)
@@ -241,6 +260,7 @@ public class App {
         System.out.println("Stratified: "+stratified(mapping));
         Map<String,Integer> predicates = stratification(mapping);
         Map<Tgd,Integer> slices = slicing(predicates,mapping);
+        List<Atom> list = positiveEvaluation(slices,1);
         LOG.info("Parsed {} edb(s), {} idb(s) and {} tgd(s).",
                 mapping.getEDB().size(),
                 mapping.getIDB().size(),
