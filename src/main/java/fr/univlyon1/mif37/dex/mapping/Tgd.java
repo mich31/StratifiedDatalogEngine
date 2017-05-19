@@ -15,6 +15,12 @@ public class Tgd {
         this.right = right;
     }
 
+    public Tgd(Atom right)
+    {
+        this.left = new HashSet<Literal>();
+        this.right = right;
+    }
+
     public Collection<Literal> getLeft() {
         return Collections.unmodifiableSet(left);
     }

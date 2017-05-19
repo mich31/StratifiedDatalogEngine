@@ -9,10 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 public class App {
     private static final Logger LOG = LoggerFactory.getLogger(App.class);
@@ -162,8 +159,50 @@ public class App {
         return predicates;
     }
 
-    public static void slicing(Map<String,Integer> map,Mapping mp)
+    public static Tgd createTGD(Relation r)
     {
+        List<Value> args = new ArrayList<Value>();
+        for(String s : r.getAttributes())
+        {
+            args.add(new Variable(s));
+        }
+        Atom newAtom = new Atom(r.getName(),args);
+        Tgd newTGD = new Tgd(newAtom);
+
+        return newTGD;
+    }
+
+    public static Map<Tgd,Integer> slicing(Map<String,Integer> map,Mapping mp)
+    {
+        Map<Tgd,Integer> slices = new HashMap<>();
+
+        // For EDBs
+        for(Relation r : mp.getEDB())
+        {
+            for(String name : map.keySet())
+            {
+                if(r.getName().equalsIgnoreCase(name))
+                {
+                    Tgd newTGD = createTGD(r);
+                    slices.put(newTGD,map.get(name));
+                }
+            }
+        }
+
+        // For TGDs
+        for(Tgd t : mp.getTgds())
+        {
+            for(String name : map.keySet())
+            {
+                if(t.getRight().getName().equalsIgnoreCase(name))
+                {
+                    slices.put(t,map.get(name));
+                }
+            }
+        }
+
+        return slices;
+
     }
 
     public static void main(String[] args) throws ParseException {
@@ -200,7 +239,8 @@ public class App {
         //positive(mapping);
         System.out.println("Semi-positive: "+semipositive(mapping));
         System.out.println("Stratified: "+stratified(mapping));
-        stratification(mapping);
+        Map<String,Integer> predicates = stratification(mapping);
+        Map<Tgd,Integer> slices = slicing(predicates,mapping);
         LOG.info("Parsed {} edb(s), {} idb(s) and {} tgd(s).",
                 mapping.getEDB().size(),
                 mapping.getIDB().size(),
